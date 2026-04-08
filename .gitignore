@@ -9,3 +9,4 @@ venv/
 dist/
 data/raw/
 suunto-data-*/
+CLAUDE.md
