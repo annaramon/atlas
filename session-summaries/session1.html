@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Project Audit Report</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.6;
+      padding: 48px 24px;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    header {
+      border-bottom: 1px solid #2d3748;
+      padding-bottom: 32px;
+      margin-bottom: 48px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #f7fafc;
+      letter-spacing: -0.5px;
+    }
+
+    header .meta {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #718096;
+    }
+
+    header .meta span { margin-right: 24px; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-green  { background: #1a3a2a; color: #68d391; }
+    .badge-yellow { background: #3a3000; color: #f6e05e; }
+    .badge-red    { background: #3a1a1a; color: #fc8181; }
+    .badge-blue   { background: #1a2a3a; color: #63b3ed; }
+    .badge-gray   { background: #2d3748; color: #a0aec0; }
+
+    section { margin-bottom: 56px; }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #f7fafc;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #cbd5e0;
+      margin-bottom: 8px;
+      margin-top: 24px;
+    }
+
+    p { color: #a0aec0; font-size: 14px; margin-bottom: 12px; }
+
+    /* Status grid */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .status-card {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .status-card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #718096;
+      margin-bottom: 8px;
+    }
+
+    .status-card .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f7fafc;
+    }
+
+    .status-card .sub {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 4px;
+    }
+
+    /* File tree */
+    .file-tree {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 20px 24px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #a0aec0;
+    }
+
+    .file-tree .dir  { color: #63b3ed; }
+    .file-tree .file { color: #e2e8f0; }
+    .file-tree .empty { color: #4a5568; font-style: italic; }
+    .file-tree .comment { color: #4a5568; }
+
+    /* Risk table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      border-bottom: 1px solid #2d3748;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 10px 14px;
+      color: #718096;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #1a202c;
+      transition: background 0.1s;
+    }
+
+    tbody tr:hover { background: #1a202c; }
+
+    tbody td {
+      padding: 12px 14px;
+      color: #a0aec0;
+      vertical-align: top;
+    }
+
+    tbody td:first-child { color: #e2e8f0; font-weight: 500; }
+
+    /* Decision list */
+    .decision-list { list-style: none; }
+
+    .decision-list li {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #1a202c;
+      font-size: 14px;
+      align-items: flex-start;
+    }
+
+    .decision-list li:last-child { border-bottom: none; }
+
+    .decision-list .icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      margin-top: 1px;
+    }
+
+    .icon-confirmed { background: #1a3a2a; color: #68d391; }
+    .icon-pending   { background: #3a3000; color: #f6e05e; }
+
+    .decision-list .title { color: #e2e8f0; font-weight: 500; }
+    .decision-list .reason { color: #718096; font-size: 13px; margin-top: 2px; }
+
+    /* Stack table */
+    .stack-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+    .stack-label {
+      width: 120px;
+      flex-shrink: 0;
+      font-size: 12px;
+      color: #718096;
+      padding-top: 2px;
+    }
+    .stack-value { font-size: 13px; color: #e2e8f0; }
+    .stack-note  { font-size: 12px; color: #718096; margin-top: 2px; }
+
+    /* Code block */
+    pre {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      color: #a0aec0;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    /* Data model cards */
+    .model-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .model-grid { grid-template-columns: 1fr; }
+    }
+
+    .model-card {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+
+    .model-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #63b3ed;
+      margin-bottom: 12px;
+      font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .model-card .field {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid #2d3748;
+      color: #a0aec0;
+    }
+
+    .model-card .field:last-child { border-bottom: none; }
+    .model-card .field .fname { color: #e2e8f0; font-family: "SF Mono", "Fira Code", monospace; }
+    .model-card .field .ftype { color: #718096; }
+    .model-card .field .fnote { color: #4a5568; font-size: 11px; margin-left: 6px; }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid #2d3748; margin: 40px 0; }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid #2d3748;
+      font-size: 12px;
+      color: #4a5568;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Atlas — Project Audit Report</h1>
+    <div class="meta">
+      <span>Phase: skeleton complete</span>
+      <span>Generated: 2026-04-03</span>
+      <span><span class="badge badge-yellow">pre-implementation</span></span>
+    </div>
+  </header>
+
+  <!-- Status overview -->
+  <section>
+    <h2>Status overview</h2>
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="label">Scaffold files</div>
+        <div class="value">27</div>
+        <div class="sub">all stubs empty</div>
+      </div>
+      <div class="status-card">
+        <div class="label">Config files</div>
+        <div class="value">5</div>
+        <div class="sub">ready to use</div>
+      </div>
+      <div class="status-card">
+        <div class="label">Workout files</div>
+        <div class="value">333</div>
+        <div class="sub">FIT + GPX on disk</div>
+      </div>
+      <div class="status-card">
+        <div class="label">Sport types</div>
+        <div class="value">15+</div>
+        <div class="sub">running, gym, skiing…</div>
+      </div>
+      <div class="status-card">
+        <div class="label">DB</div>
+        <div class="value">running</div>
+        <div class="sub">Postgres 16 via Docker</div>
+      </div>
+      <div class="status-card">
+        <div class="label">Tables</div>
+        <div class="value">0</div>
+        <div class="sub">migrations not run yet</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stack -->
+  <section>
+    <h2>Confirmed stack</h2>
+    <div class="stack-row"><div class="stack-label">Backend</div><div><div class="stack-value">FastAPI + Uvicorn</div></div></div>
+    <div class="stack-row"><div class="stack-label">ORM</div><div><div class="stack-value">SQLAlchemy 2.0 + Alembic</div></div></div>
+    <div class="stack-row"><div class="stack-label">Database</div><div><div class="stack-value">PostgreSQL 16 (Docker)</div></div></div>
+    <div class="stack-row"><div class="stack-label">LLM</div><div><div class="stack-value">Ollama — qwen2.5:32b (env)</div><div class="stack-note">Pull command in CLAUDE.md references 72b — inconsistency flagged below</div></div></div>
+    <div class="stack-row"><div class="stack-label">FIT parsing</div><div><div class="stack-value">fitparse 1.2.0</div></div></div>
+    <div class="stack-row"><div class="stack-label">Data</div><div><div class="stack-value">pandas 2.2.3 + numpy 2.1.3</div><div class="stack-note">No derived metrics in MVP — these are available for query-time aggregation</div></div></div>
+    <div class="stack-row"><div class="stack-label">Testing</div><div><div class="stack-value">pytest + pytest-asyncio + httpx</div></div></div>
+    <div class="stack-row"><div class="stack-label">Config</div><div><div class="stack-value">pydantic-settings + python-dotenv</div></div></div>
+  </section>
+
+  <!-- File structure -->
+  <section>
+    <h2>Project structure</h2>
+    <div class="file-tree">
+      <span class="dir">atlas/</span><br>
+      ├── <span class="dir">app/</span><br>
+      │   ├── <span class="dir">api/</span>            <span class="comment"># HTTP surface — POST /ask only</span><br>
+      │   │   ├── <span class="empty">__init__.py</span><br>
+      │   │   └── <span class="empty">ask.py</span>        <span class="comment"># stub</span><br>
+      │   ├── <span class="dir">agent/</span>          <span class="comment"># Ollama loop + tool dispatch</span><br>
+      │   │   ├── <span class="empty">__init__.py</span><br>
+      │   │   ├── <span class="empty">agent.py</span>      <span class="comment"># stub</span><br>
+      │   │   └── <span class="empty">tools.py</span>      <span class="comment"># stub</span><br>
+      │   ├── <span class="dir">ingestion/</span>      <span class="comment"># all file parsing isolated here</span><br>
+      │   │   ├── <span class="empty">__init__.py</span><br>
+      │   │   ├── <span class="empty">fit_parser.py</span>  <span class="comment"># stub</span><br>
+      │   │   ├── <span class="empty">ndjson_parser.py</span> <span class="comment"># stub</span><br>
+      │   │   └── <span class="empty">pipeline.py</span>    <span class="comment"># stub</span><br>
+      │   ├── <span class="dir">models/</span>         <span class="comment"># SQLAlchemy ORM — pure schema</span><br>
+      │   │   ├── <span class="empty">__init__.py</span><br>
+      │   │   ├── <span class="empty">base.py</span>       <span class="comment"># stub</span><br>
+      │   │   ├── <span class="empty">workout.py</span>    <span class="comment"># stub</span><br>
+      │   │   ├── <span class="empty">sleep.py</span>      <span class="comment"># stub</span><br>
+      │   │   ├── <span class="empty">activity.py</span>   <span class="comment"># stub</span><br>
+      │   │   └── <span class="empty">recovery.py</span>   <span class="comment"># stub</span><br>
+      │   ├── <span class="empty">main.py</span>         <span class="comment"># stub — FastAPI app entrypoint</span><br>
+      │   └── <span class="dir">core/</span>           <span class="comment"># config + DB session — everything imports from here</span><br>
+      │       ├── <span class="empty">__init__.py</span><br>
+      │       ├── <span class="empty">config.py</span>     <span class="comment"># stub</span><br>
+      │       └── <span class="empty">database.py</span>   <span class="comment"># stub</span><br>
+      ├── <span class="dir">alembic/</span>            <span class="comment"># migration history</span><br>
+      │   ├── <span class="empty">env.py</span>            <span class="comment"># stub — needs writing</span><br>
+      │   ├── <span class="empty">script.py.mako</span>    <span class="comment"># stub — needs writing</span><br>
+      │   └── <span class="dir">versions/</span>         <span class="comment"># empty — no migrations yet</span><br>
+      ├── <span class="dir">data/raw/</span>           <span class="comment"># drop zone for future exports</span><br>
+      ├── <span class="dir">suunto-data-03042026/</span> <span class="comment"># gitignored — actual export on disk</span><br>
+      ├── <span class="dir">tests/</span><br>
+      │   ├── <span class="empty">conftest.py</span>       <span class="comment"># stub — DB fixtures needed</span><br>
+      │   ├── <span class="dir">test_ingestion/</span>   <span class="comment"># FIT + NDJSON parser tests</span><br>
+      │   └── <span class="dir">test_agent/</span>       <span class="comment"># tool + agent loop tests</span><br>
+      ├── <span class="file">CLAUDE.md</span>           <span class="comment"># AI context doc — complete</span><br>
+      ├── <span class="file">docker-compose.yml</span>  <span class="comment"># Postgres only</span><br>
+      ├── <span class="file">requirements.txt</span>    <span class="comment"># pinned</span><br>
+      ├── <span class="file">alembic.ini</span>         <span class="comment"># configured</span><br>
+      ├── <span class="file">.env.example</span>        <span class="comment"># 3 vars</span><br>
+      └── <span class="file">.gitignore</span>          <span class="comment"># .env + suunto-data-* covered</span>
+    </div>
+  </section>
+
+  <!-- Data models -->
+  <section>
+    <h2>Planned data models</h2>
+    <p>Derived directly from inspecting the raw FIT and NDJSON files. Fields marked <span class="badge badge-gray">nullable</span> are absent in low-sensor sports (gym, yoga, pilates).</p>
+
+    <div class="model-grid">
+
+      <div class="model-card">
+        <h4>workout</h4>
+        <div class="field"><span class="fname">started_at</span><span class="ftype">timestamptz</span></div>
+        <div class="field"><span class="fname">ended_at</span><span class="ftype">timestamptz</span></div>
+        <div class="field"><span class="fname">sport</span><span class="ftype">varchar</span></div>
+        <div class="field"><span class="fname">duration_seconds</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">distance_meters</span><span class="ftype">float <span class="fnote">nullable</span></span></div>
+        <div class="field"><span class="fname">total_calories</span><span class="ftype">integer</span></div>
+        <div class="field"><span class="fname">avg_hr / max_hr / min_hr</span><span class="ftype">integer</span></div>
+        <div class="field"><span class="fname">avg_speed / max_speed</span><span class="ftype">float <span class="fnote">nullable</span></span></div>
+        <div class="field"><span class="fname">total_ascent / descent</span><span class="ftype">integer <span class="fnote">nullable</span></span></div>
+        <div class="field"><span class="fname">avg_power / norm_power</span><span class="ftype">integer <span class="fnote">nullable</span></span></div>
+        <div class="field"><span class="fname">training_stress_score</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">training_effect</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">peak_epoc</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">recovery_time_seconds</span><span class="ftype">integer</span></div>
+        <div class="field"><span class="fname">feeling</span><span class="ftype">integer 1–5</span></div>
+        <div class="field"><span class="fname">hr_zone_distribution</span><span class="ftype">json array</span></div>
+        <div class="field"><span class="fname">source_file</span><span class="ftype">varchar unique</span></div>
+      </div>
+
+      <div class="model-card">
+        <h4>sleep_session</h4>
+        <div class="field"><span class="fname">sleep_id</span><span class="ftype">bigint unique</span></div>
+        <div class="field"><span class="fname">bedtime_start</span><span class="ftype">timestamptz</span></div>
+        <div class="field"><span class="fname">bedtime_end</span><span class="ftype">timestamptz</span></div>
+        <div class="field"><span class="fname">duration_seconds</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">deep_sleep_seconds</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">light_sleep_seconds</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">rem_sleep_seconds</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">hr_avg_bpm</span><span class="ftype">float <span class="fnote">×198</span></span></div>
+        <div class="field"><span class="fname">hr_min_bpm</span><span class="ftype">float <span class="fnote">×198</span></span></div>
+        <div class="field"><span class="fname">quality</span><span class="ftype">float 0–1</span></div>
+        <div class="field"><span class="fname">avg_hrv</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">hrv_sample_count</span><span class="ftype">integer</span></div>
+        <div class="field"><span class="fname">max_spo2</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">is_nap</span><span class="ftype">boolean</span></div>
+        <div class="field"><span class="fname">sleep_onset_latency_s</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">waso_seconds</span><span class="ftype">float</span></div>
+        <div class="field"><span class="fname">altitude</span><span class="ftype">float</span></div>
+      </div>
+
+      <div class="model-card">
+        <h4>sleep_stage</h4>
+        <div class="field"><span class="fname">sleep_session_id</span><span class="ftype">FK → sleep_session</span></div>
+        <div class="field"><span class="fname">timestamp</span><span class="ftype">timestamptz</span></div>
+        <div class="field"><span class="fname">stage</span><span class="ftype">varchar (REM/DEEP/LIGHT/WAKE)</span></div>
+        <div class="field"><span class="fname">duration_seconds</span><span class="ftype">float</span></div>
+      </div>
+
+      <div class="model-card">
+        <h4>activity_slot</h4>
+        <div class="field"><span class="fname">timestamp</span><span class="ftype">timestamptz unique</span></div>
+        <div class="field"><span class="fname">step_count</span><span class="ftype">integer</span></div>
+        <div class="field"><span class="fname">energy_kcal</span><span class="ftype">float</span></div>
+      </div>
+
+      <div class="model-card">
+        <h4>recovery_entry</h4>
+        <div class="field"><span class="fname">timestamp</span><span class="ftype">timestamptz unique</span></div>
+        <div class="field"><span class="fname">balance</span><span class="ftype">float 0–1</span></div>
+        <div class="field"><span class="fname">stress_state</span><span class="ftype">integer</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Confirmed decisions -->
+  <section>
+    <h2>Confirmed decisions</h2>
+    <ul class="decision-list">
+      <li>
+        <div class="icon icon-confirmed">✓</div>
+        <div>
+          <div class="title">Ollama only — no Anthropic API</div>
+          <div class="reason">Fully local stack. Health data stays on machine. Switch to Claude later by changing 3 files (requirements.txt, config.py, agent.py).</div>
+        </div>
+      </li>
+      <li>
+        <div class="icon icon-confirmed">✓</div>
+        <div>
+          <div class="title">No computed/derived metrics in MVP</div>
+          <div class="reason">Agent queries raw DB data directly. <code>processing/</code> folder is intentionally absent.</div>
+        </div>
+      </li>
+      <li>
+        <div class="icon icon-confirmed">✓</div>
+        <div>
+          <div class="title">Activity aggregation at query time</div>
+          <div class="reason">Store raw 30-min slots. Daily totals computed by the agent tool on demand.</div>
+        </div>
+      </li>
+      <li>
+        <div class="icon icon-confirmed">✓</div>
+        <div>
+          <div class="title">Skip GPX files silently</div>
+          <div class="reason">FIT files are the source of truth. Pipeline will filter <code>.gpx</code> by extension.</div>
+        </div>
+      </li>
+      <li>
+        <div class="icon icon-confirmed">✓</div>
+        <div>
+          <div class="title">Skip gears.json and reactions.json</div>
+          <div class="reason">reactions.json is empty. gears.json is equipment tracking — out of scope for MVP.</div>
+        </div>
+      </li>
+      <li>
+        <div class="icon icon-confirmed">✓</div>
+        <div>
+          <div class="title">No test abstraction layer for LLM</div>
+          <div class="reason">Mock the Ollama client directly in tests. Tools are tested against a real test DB without touching the LLM at all.</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Risks -->
+  <section>
+    <h2>Risks &amp; things to fix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Severity</th>
+          <th>Detail</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Model version mismatch</td>
+          <td><span class="badge badge-red">high</span></td>
+          <td><code>.env.example</code> says <code>qwen2.5:32b</code>, CLAUDE.md setup command says <code>ollama pull qwen2.5:72b</code>. These are different models.</td>
+          <td>Decide which model to standardise on and fix both files before first run.</td>
+        </tr>
+        <tr>
+          <td>alembic.ini hardcodes DB credentials</td>
+          <td><span class="badge badge-yellow">medium</span></td>
+          <td><code>sqlalchemy.url</code> in <code>alembic.ini</code> is hardcoded to <code>atlas:atlas@localhost</code>. This diverges from <code>.env</code> and breaks if credentials ever change.</td>
+          <td>In <code>alembic/env.py</code> override <code>sqlalchemy.url</code> from <code>config.DATABASE_URL</code> at runtime.</td>
+        </tr>
+        <tr>
+          <td>alembic/env.py is empty</td>
+          <td><span class="badge badge-yellow">medium</span></td>
+          <td>Alembic won't discover models or connect to the DB until <code>env.py</code> and <code>script.py.mako</code> are written. Running <code>alembic upgrade head</code> right now fails silently.</td>
+          <td>Write these as part of the core setup step.</td>
+        </tr>
+        <tr>
+          <td>HR fraction normalization</td>
+          <td><span class="badge badge-yellow">medium</span></td>
+          <td><code>sleep.hrAvg = 1.07</code> — stored as a fraction of hrMax, not bpm. Multiplying by 198 gives <code>≈212 bpm</code> which is above hrMax (198). The normalization formula needs validation against actual known sleep HR values.</td>
+          <td>Sample 2–3 nights and verify the formula before ingesting all data.</td>
+        </tr>
+        <tr>
+          <td>No virtual environment in repo</td>
+          <td><span class="badge badge-yellow">medium</span></td>
+          <td>No <code>.venv/</code>, no <code>Makefile</code>, no setup instructions beyond CLAUDE.md. A fresh clone has no clear <code>pip install</code> step documented.</td>
+          <td>Add a <code>make install</code> target or a one-liner in CLAUDE.md: <code>python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt</code>.</td>
+        </tr>
+        <tr>
+          <td>Ollama tool calling reliability</td>
+          <td><span class="badge badge-yellow">medium</span></td>
+          <td>Local models are less reliable at multi-turn tool use than Claude. qwen2.5 may produce malformed tool call arguments or fail to call the right tool for ambiguous queries.</td>
+          <td>Design tool schemas to be as explicit as possible. Add input validation in each tool function. Log all tool calls during development.</td>
+        </tr>
+        <tr>
+          <td>No idempotency strategy yet</td>
+          <td><span class="badge badge-yellow">medium</span></td>
+          <td>Re-running the ingestion pipeline on the same files will produce duplicate rows. Strategy (unique constraint + upsert) is documented but not yet implemented.</td>
+          <td>Enforce <code>UNIQUE</code> on <code>workout.source_file</code>, <code>sleep_session.sleep_id</code>, and <code>activity_slot.timestamp</code> at migration time.</td>
+        </tr>
+        <tr>
+          <td>pandas/numpy in requirements but no usage planned</td>
+          <td><span class="badge badge-blue">low</span></td>
+          <td">With no derived metrics in MVP, pandas and numpy are only useful for query-time aggregation in tools. This is achievable with plain SQLAlchemy + Python.</td>
+          <td>Keep them — they're lightweight and useful for future aggregations — but don't depend on them for MVP logic.</td>
+        </tr>
+        <tr>
+          <td>No health check on POST /ask</td>
+          <td><span class="badge badge-blue">low</span></td>
+          <td>If Ollama is not running, the endpoint will fail with an unhelpful connection error. Fine for MVP single-user local use but annoying in practice.</td>
+          <td>Add a startup check or a <code>GET /health</code> endpoint that pings both Postgres and Ollama.</td>
+        </tr>
+        <tr>
+          <td>data/raw/ folder exists but is unused</td>
+          <td><span class="badge badge-gray">info</span></td>
+          <td>Created as a future drop zone but the current export lives at repo root. Could cause confusion about where to put new exports.</td>
+          <td>Either remove it or add a note in CLAUDE.md clarifying its future purpose.</td>
+        </tr>
+        <tr>
+          <td>sleep_stages/ data only starts 2025-09</td>
+          <td><span class="badge badge-gray">info</span></td>
+          <td>sleep/ summaries are also only from 2025-09. activity/ starts 2024-12. Temporal gaps are expected but the agent needs to handle "no data for that period" gracefully.</td>
+          <td>Each tool should return a clear empty state rather than raising an error when the date range has no data.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Next steps -->
+  <section>
+    <h2>Recommended implementation order</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Step</th><th>Files</th><th>Why first</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Core config + DB session</td>
+          <td><code>core/config.py</code>, <code>core/database.py</code></td>
+          <td>Everything depends on this. Write once, never touch again.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Models + Alembic migration</td>
+          <td><code>models/*.py</code>, <code>alembic/env.py</code>, <code>alembic/versions/</code></td>
+          <td>Tables must exist before ingestion or tests can run.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Ingestion pipeline</td>
+          <td><code>ingestion/fit_parser.py</code>, <code>ndjson_parser.py</code>, <code>pipeline.py</code></td>
+          <td>Without data in the DB, the agent has nothing to query.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Agent tools</td>
+          <td><code>agent/tools.py</code></td>
+          <td>Pure SQLAlchemy functions — testable in isolation before adding Ollama.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Agent loop</td>
+          <td><code>agent/agent.py</code></td>
+          <td>Wire Ollama to the tools. First end-to-end query.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>API endpoint</td>
+          <td><code>main.py</code>, <code>api/ask.py</code></td>
+          <td>Thin wrapper. Last because everything it calls is already tested.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    Atlas v0.1 — personal AI agent for athlete physiological intelligence — single user, fully local
+  </footer>
+
+</div>
+</body>
+</html>
