@@ -123,7 +123,7 @@ uvicorn app.main:app --reload
 
 ## Known data quirks to handle
 
-- `sleep.hrAvg` / `sleep.hrMin` are normalized fractions, not bpm. Multiply by hrMax (198) on ingest.
+- `sleep.hrAvg` / `sleep.hrMin` are normalized fractions, not bpm. Multiply by hr_rest on ingest.
 - `activity/` only starts from 2024-12; `sleep/` and `recovery/` start from 2025-09 — gaps are expected.
 - Workout sport types use underscore slugs (e.g. `cross_country_skiing`, `ski_touring`).
 - Timestamps include timezone offset (`+01:00`). Normalize to UTC on ingest.
