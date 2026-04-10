@@ -35,3 +35,5 @@ class SleepStage(Base):
     duration = Column(Integer, nullable=False)        # seconds
 
     sleep = relationship("Sleep", back_populates="stages")
+
+    __table_args__ = (UniqueConstraint("sleep_id", "recorded_at", name="uq_sleep_stage_sleep_id_recorded_at"),)
