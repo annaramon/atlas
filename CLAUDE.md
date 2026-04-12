@@ -38,6 +38,7 @@ atlas/
 │   ├── script.py.mako
 │   └── versions/
 ├── suunto-data-03042026/ # Suunto export (gitignored)
+├── synthetic_wearable_data/ # Synthetic dev/test data (same structure as real export)
 ├── tests/
 │   ├── conftest.py
 │   ├── test_ingestion/
@@ -70,7 +71,8 @@ atlas/
 
 ## Data on disk
 
-Export directory: `suunto-data-03042026/` (repo root, gitignored)
+Real export directory: `suunto-data-03042026/` (repo root, gitignored)
+Synthetic dev/test data: `synthetic_wearable_data/` (same folder structure, safe to commit)
 
 | Folder | Format | Content |
 |---|---|---|
@@ -115,7 +117,7 @@ OLLAMA_MODEL=qwen2.5:32b
 ollama pull qwen2.5:72b        # Pull model (once)
 docker compose up -d           # Start Postgres
 alembic upgrade head           # Apply migrations
-python -m app.ingestion.pipeline suunto-data-03042026
+python -m app.ingestion.pipeline synthetic_wearable_data  # or suunto-data-03042026 for real data
 uvicorn app.main:app --reload
 ```
 

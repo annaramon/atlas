@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlas — Project Report</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222535;
+      --border: #2e3148;
+      --accent: #6c8ff8;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --code-bg: #141720;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Layout */
+    .layout { display: flex; min-height: 100vh; }
+
+    nav {
+      width: 260px;
+      min-width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 2rem 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    nav .logo {
+      padding: 0 1.5rem 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    nav .logo span { color: var(--muted); font-weight: 400; font-size: 0.8rem; display: block; margin-top: 2px; }
+
+    nav ul { list-style: none; }
+    nav ul li a {
+      display: block;
+      padding: 0.4rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.875rem;
+      transition: color 0.15s, background 0.15s;
+    }
+    nav ul li a:hover { color: var(--text); background: var(--surface2); text-decoration: none; }
+    nav ul li.section {
+      padding: 1rem 1.5rem 0.3rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    main {
+      flex: 1;
+      padding: 3rem 4rem;
+      max-width: 900px;
+    }
+
+    /* Typography */
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.4rem; font-weight: 700; margin: 3rem 0 1rem; padding-top: 1rem; color: var(--accent); border-top: 1px solid var(--border); }
+    h3 { font-size: 1.05rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--text); }
+    h4 { font-size: 0.9rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.05em; }
+    p { margin-bottom: 1rem; color: var(--text); }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1f35 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .hero p { color: var(--muted); margin-bottom: 0; font-size: 1rem; }
+
+    /* Code */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 1rem 0 1.5rem;
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+    }
+    code {
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      font-size: 0.85em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15em 0.4em;
+    }
+    pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+    /* Keyword colors */
+    .kw { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .num { color: #f78c6c; }
+    .cls { color: #ffcb6b; }
+    .op { color: #89ddff; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card h3 { margin-top: 0; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0 1.5rem;
+    }
+
+    /* Flow diagram */
+    .flow {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .flow-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .flow-box.blue { border-color: var(--accent); color: var(--accent); }
+    .flow-box.purple { border-color: var(--accent2); color: var(--accent2); }
+    .flow-box.green { border-color: var(--green); color: var(--green); }
+    .flow-box.yellow { border-color: var(--yellow); color: var(--yellow); }
+
+    .flow-arrow {
+      color: var(--muted);
+      font-size: 1.2rem;
+      padding: 0 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.875rem;
+    }
+    th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    td code { font-size: 0.8rem; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2em 0.6em;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .badge-blue { background: #1e3a5f; color: var(--accent); }
+    .badge-purple { background: #2d1f4e; color: var(--accent2); }
+    .badge-green { background: #14372a; color: var(--green); }
+    .badge-yellow { background: #3d2e0a; color: var(--yellow); }
+
+    /* Callout */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: #1a2035;
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.9rem;
+    }
+    .callout.warn { border-color: var(--yellow); background: #221c0a; }
+    .callout.note { border-color: var(--accent2); background: #1e1530; }
+
+    /* Section anchor spacing */
+    section { scroll-margin-top: 2rem; }
+
+    /* Divider */
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* Loop diagram */
+    .loop-diagram {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 2rem;
+      margin: 1rem 0 1.5rem;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.8rem;
+      line-height: 2;
+      color: var(--muted);
+    }
+    .loop-diagram .hi { color: var(--text); }
+    .loop-diagram .acc { color: var(--accent); }
+    .loop-diagram .grn { color: var(--green); }
+    .loop-diagram .pur { color: var(--accent2); }
+    .loop-diagram .yel { color: var(--yellow); }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav>
+    <div class="logo">Atlas <span>Technical Report</span></div>
+    <ul>
+      <li class="section">Overview</li>
+      <li><a href="#overview">What is Atlas?</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+
+      <li class="section">Data Layer</li>
+      <li><a href="#models">ORM Models</a></li>
+      <li><a href="#ingestion">Ingestion Pipeline</a></li>
+      <li><a href="#migrations">Alembic Migrations</a></li>
+
+      <li class="section">Agent Layer</li>
+      <li><a href="#agent">Agent Loop</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#ollama">Ollama &amp; the Model</a></li>
+
+      <li class="section">API Layer</li>
+      <li><a href="#api">FastAPI Endpoint</a></li>
+
+      <li class="section">Quality</li>
+      <li><a href="#tests">Tests</a></li>
+      <li><a href="#connections">How Parts Connect</a></li>
+    </ul>
+  </nav>
+
+  <!-- Content -->
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>Atlas</h1>
+      <p>Personal physiological intelligence agent for an elite multi-sport athlete.<br>
+      A single <code>POST /ask</code> takes a natural language question and returns a data-grounded answer drawn from real Suunto wearable data.</p>
+    </div>
+
+    <!-- Overview -->
+    <section id="overview">
+      <h2>What is Atlas?</h2>
+      <p>Atlas is a local AI agent that answers questions about training load, sleep quality, recovery state, and daily activity — using data exported from a Suunto wearable device. Everything runs on your machine: no cloud API, no third-party data transfer.</p>
+
+      <p>A typical interaction looks like this:</p>
+      <pre><span class="cmt"># You ask:</span>
+<span class="str">"How was my sleep and recovery over the past two weeks, and how did my hard workouts affect them?"</span>
+
+<span class="cmt"># Atlas fetches sleep rows, recovery rows, and workout rows from the DB,
+# passes them to the model, and returns a specific, data-grounded answer:</span>
+<span class="str">"Your average sleep quality was 0.78 over the past 14 days.
+ The three nights after Zone 4/5 sessions (Mar 3, Mar 7, Mar 11)
+ showed 12% lower HRV and recovery balance dropped to 0.51–0.58.
+ Deep sleep remained consistent at ~58 min per night."</span></pre>
+
+      <p>The key design decisions are:</p>
+      <ul>
+        <li><strong>Local LLM.</strong> Ollama runs <code>qwen2.5:32b</code> on your hardware. Your physiological data never leaves the machine.</li>
+        <li><strong>No pre-computation.</strong> The agent queries raw stored data and aggregates at query time. This keeps ingestion simple and avoids derived metrics that could be wrong.</li>
+        <li><strong>Tool-calling, not RAG.</strong> The model doesn't search a vector store — it calls typed functions that return structured JSON from the database. This is more reliable for numerical data.</li>
+      </ul>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>The project has three distinct layers, each with a single responsibility:</p>
+
+      <div class="flow">
+        <div class="flow-box yellow">Suunto Export<br><small>.fit / .ndjson</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">Ingestion Pipeline<br><small>parse + normalize</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green">PostgreSQL<br><small>4 tables</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box blue">Agent Tools<br><small>ORM queries</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">Ollama LLM<br><small>qwen2.5:32b</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box blue">POST /ask<br><small>FastAPI</small></div>
+      </div>
+
+      <p>These layers only communicate in one direction. The API never touches the ingestion code. The agent never knows about the file formats. Each layer can be understood, tested, and replaced independently.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>Data layer</h3>
+          <p>SQLAlchemy ORM models define the schema. Alembic manages migrations. The ingestion pipeline is the only writer — everything else is read-only.</p>
+        </div>
+        <div class="card">
+          <h3>Agent layer</h3>
+          <p>The LLM drives a tool-calling loop. It decides which tools to call and what arguments to pass. Tools are typed Python functions that return plain dicts.</p>
+        </div>
+        <div class="card">
+          <h3>API layer</h3>
+          <p>A single FastAPI endpoint accepts a question string, hands it to the agent, and returns the answer. No auth, no sessions — single-user MVP.</p>
+        </div>
+        <div class="card">
+          <h3>Infrastructure</h3>
+          <p>Postgres runs in Docker. Ollama runs natively. The app reads config from <code>.env</code> via Pydantic Settings.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Models -->
+    <section id="models">
+      <h2>ORM Models <span class="badge badge-green">app/models/</span></h2>
+      <p>SQLAlchemy models define the shape of the database. They are the shared language between the ingestion pipeline (which writes) and the agent tools (which read). Changing a model without a migration would silently break both.</p>
+
+      <h3>Why SQLAlchemy ORM?</h3>
+      <p>Raw SQL strings in query functions would work, but they are invisible to the type checker, fragile to rename, and hard to test without a real database. ORM queries are Python — they compose, they're readable, and SQLAlchemy translates them correctly for both Postgres (production) and SQLite (tests).</p>
+
+      <h3>The four tables</h3>
+
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Table</th><th>Key columns</th><th>Unique constraint</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Workout</code></td>
+            <td><code>workouts</code></td>
+            <td><code>sport_type</code>, <code>total_duration</code>, <code>hr_avg/max/min</code>, <code>hr_zone_1..5</code></td>
+            <td><code>source_file</code> — prevents re-ingesting the same FIT file</td>
+          </tr>
+          <tr>
+            <td><code>Sleep</code></td>
+            <td><code>sleep</code></td>
+            <td><code>deep/light/rem_duration</code>, <code>hr_avg</code>, <code>hrv</code>, <code>spo2_avg</code>, <code>quality_score</code></td>
+            <td><code>recorded_at</code> — one session per timestamp</td>
+          </tr>
+          <tr>
+            <td><code>SleepStage</code></td>
+            <td><code>sleep_stages</code></td>
+            <td><code>sleep_id</code> (FK), <code>stage</code> (deep/light/rem/awake), <code>duration</code></td>
+            <td><code>(sleep_id, recorded_at)</code></td>
+          </tr>
+          <tr>
+            <td><code>Activity</code></td>
+            <td><code>activity</code></td>
+            <td><code>step_count</code>, <code>energy_consumption</code></td>
+            <td><code>recorded_at</code> — 30-min slots, one per slot</td>
+          </tr>
+          <tr>
+            <td><code>Recovery</code></td>
+            <td><code>recovery</code></td>
+            <td><code>balance</code> (0–1), <code>stress_state</code></td>
+            <td><code>recorded_at</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout note">
+        <strong>Why store activity as 30-min slots?</strong> The Suunto export writes one NDJSON row per 30-minute window. Storing them raw means the ingestion is a simple, lossless pass-through. The agent tool aggregates them into daily totals at query time using <code>func.sum() + GROUP BY day</code>. If the aggregation logic ever needs to change, you change one line in <code>tools.py</code>, not re-ingest 34,000 rows.
+      </div>
+
+      <h3>The SleepStage relationship</h3>
+      <p>Sleep sessions and granular stage data live in separate files in the Suunto export (<code>sleep/</code> and <code>sleep_stages/</code>). The <code>SleepStage</code> model has a foreign key to <code>Sleep.id</code> and a SQLAlchemy <code>relationship</code> for ORM navigation. Linking happens during ingestion by matching timestamps: any stage row whose <code>recorded_at</code> falls within a session's <code>[bedtime_start, bedtime_end)</code> window belongs to that session.</p>
+    </section>
+
+    <!-- Ingestion -->
+    <section id="ingestion">
+      <h2>Ingestion Pipeline <span class="badge badge-purple">app/ingestion/</span></h2>
+      <p>The pipeline is a one-time (or re-runnable) script that reads the raw Suunto export directory and populates the database. It is the only place that knows about file formats.</p>
+
+      <pre><span class="cmt"># Run it:</span>
+python -m app.ingestion.pipeline suunto-data-03042026</pre>
+
+      <h3>Structure</h3>
+      <p>Three files, one responsibility each:</p>
+      <ul>
+        <li><code>fit_parser.py</code> — parses a single FIT binary file into a dict matching the <code>Workout</code> model</li>
+        <li><code>ndjson_parser.py</code> — parses individual lines from sleep, activity, and recovery NDJSON files</li>
+        <li><code>pipeline.py</code> — orchestrates: discovers files, calls parsers, inserts rows, commits</li>
+      </ul>
+
+      <h3>Why is the pipeline separated from the parsers?</h3>
+      <p>A parser function takes raw data and returns a dict. It has no side effects and no database dependency. This makes it trivially unit testable — you pass in a sample dict, you assert the output, no DB setup required. The pipeline is the only place that opens DB sessions and calls <code>INSERT</code>.</p>
+
+      <h3>Idempotency</h3>
+      <p>Every insert uses <code>ON CONFLICT DO NOTHING</code> via SQLAlchemy's PostgreSQL <code>insert()</code> dialect. Running the pipeline twice on the same data produces the same result — no duplicates, no errors. This matters because re-running after adding new months of data should be safe.</p>
+
+      <pre><span class="cmt"># Workout insert — source_file is the unique key</span>
+db.execute(
+    <span class="fn">insert</span>(Workout).<span class="fn">values</span>(**row).<span class="fn">on_conflict_do_nothing</span>(index_elements=[<span class="str">'source_file'</span>])
+)</pre>
+
+      <h3>FIT parser (<code>fit_parser.py</code>)</h3>
+      <p>FIT is a binary format from Garmin (used by Suunto). The <code>fitparse</code> library decodes it. The parser extracts the <code>session</code> message — the single record that contains aggregate workout metrics. Individual data points (GPS track, per-second HR) are not stored; only the summary.</p>
+
+      <p>Sport type and timestamp come from the <em>filename</em>, not the FIT session message. This is intentional: some sport types like <code>gym</code> report as <code>training</code> in the FIT metadata, which loses useful information. The filename (<code>2024-12-27_10.26.13-cross_country_skiing.fit</code>) is authoritative.</p>
+
+      <div class="callout warn">
+        <strong>GPX files are silently skipped.</strong> Suunto exports both a FIT and a GPX file per workout. GPX contains only GPS track data, which is already embedded in the FIT file. The pipeline globs <code>*.fit</code> only.
+      </div>
+
+      <h3>NDJSON parser (<code>ndjson_parser.py</code>)</h3>
+      <p>NDJSON (newline-delimited JSON) means each line is an independent JSON object. Each line has the shape <code>{"timestamp": "...", "entryData": {...}}</code>. Four parse functions handle the four data types:</p>
+
+      <table>
+        <thead><tr><th>Function</th><th>Source folder</th><th>Key transforms</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>parse_sleep_line()</code></td>
+            <td><code>sleep/</code></td>
+            <td>HR fraction → bpm (multiply by <code>hr_rest</code>); extracts <code>_bedtime_end</code> for stage linking; deduplicates repeated sessions</td>
+          </tr>
+          <tr>
+            <td><code>parse_sleep_stage_line()</code></td>
+            <td><code>sleep_stages/</code></td>
+            <td>Lowercases stage enum (<code>DEEP</code> → <code>deep</code>)</td>
+          </tr>
+          <tr>
+            <td><code>parse_activity_line()</code></td>
+            <td><code>activity/</code></td>
+            <td>Passes through step count and energy; no transformation needed</td>
+          </tr>
+          <tr>
+            <td><code>parse_recovery_line()</code></td>
+            <td><code>recovery/</code></td>
+            <td>Passes through balance (0–1) and stress state</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>HR normalization — a critical detail</h3>
+      <p>The Suunto sleep export stores heart rate as a <em>fraction of resting HR</em>, not as bpm. A value of <code>0.9</code> means 90% of resting HR. The pipeline multiplies by <code>hr_rest</code> (loaded from <code>user/user.json</code>) to convert to bpm before storing:</p>
+
+      <pre><span class="str">'hr_avg'</span>: <span class="fn">round</span>(hr_avg_raw * hr_rest) <span class="kw">if</span> hr_avg_raw <span class="kw">is not None else</span> <span class="cls">None</span></pre>
+
+      <div class="callout warn">
+        <strong>Note:</strong> The original CLAUDE.md said to multiply by <code>hrMax</code>, which would produce values of 178–221 bpm during sleep — physiologically impossible. The code correctly uses <code>hrRest</code>. The documentation has been superseded by the implementation.
+      </div>
+
+      <h3>Sleep stage linking</h3>
+      <p>All sleep stage rows are loaded into memory first, sorted by timestamp. For each sleep session, the pipeline finds all stage rows whose <code>recorded_at</code> falls within <code>[bedtime_start, bedtime_end)</code> and inserts them with the session's database <code>id</code> as the foreign key. This avoids a complex JOIN during ingestion.</p>
+    </section>
+
+    <!-- Migrations -->
+    <section id="migrations">
+      <h2>Alembic Migrations <span class="badge badge-yellow">alembic/</span></h2>
+      <p>Alembic is the migration tool for SQLAlchemy. Every schema change — adding a column, creating a table, adding an index — must go through a migration file. The database is never edited manually.</p>
+
+      <h3>Why this matters</h3>
+      <p>Without migrations, the DB schema and the ORM models can silently diverge. A new column added to a model but not to the DB will cause crashes at runtime with no clear error. Alembic keeps a version table in the DB (<code>alembic_version</code>) and tracks exactly which migrations have been applied.</p>
+
+      <h3>Current migrations</h3>
+      <table>
+        <thead><tr><th>Migration</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>3b18e57</code></td><td>Initial schema — creates <code>workouts</code>, <code>sleep</code>, <code>sleep_stages</code>, <code>activity</code>, <code>recovery</code></td></tr>
+          <tr><td><code>764152f</code></td><td>Adds <code>hr_zone_1..5</code> columns to <code>workouts</code></td></tr>
+          <tr><td><code>a1c3e2f</code> (head)</td><td>Adds unique constraint on <code>(sleep_id, recorded_at)</code> in <code>sleep_stages</code></td></tr>
+        </tbody>
+      </table>
+
+      <pre><span class="cmt"># Apply all migrations:</span>
+alembic upgrade head
+
+<span class="cmt"># Check current state:</span>
+alembic current</pre>
+    </section>
+
+    <!-- Agent -->
+    <section id="agent">
+      <h2>Agent Loop <span class="badge badge-blue">app/agent/agent.py</span></h2>
+      <p>The agent is a loop that drives a conversation with the LLM until it produces a final text answer. It is the core intelligence of the system.</p>
+
+      <div class="loop-diagram">
+        <span class="hi">ask(question)</span><br>
+        &nbsp;&nbsp;│<br>
+        &nbsp;&nbsp;├─ Build messages: [<span class="pur">system prompt</span>, <span class="grn">user question</span>]<br>
+        &nbsp;&nbsp;│<br>
+        &nbsp;&nbsp;▼<br>
+        <span class="acc">┌─────────────────────────────────────┐</span><br>
+        <span class="acc">│</span>  ollama.chat(model, messages, tools)  <span class="acc">│</span>  ← LLM call<br>
+        <span class="acc">└─────────────────────────────────────┘</span><br>
+        &nbsp;&nbsp;│<br>
+        &nbsp;&nbsp;├─ <span class="yel">if no tool_calls</span> → <span class="grn">return msg.content</span>  ← done<br>
+        &nbsp;&nbsp;│<br>
+        &nbsp;&nbsp;├─ <span class="yel">if tool_calls present</span>:<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├─ dispatch each call to TOOL_DISPATCH[name](**args)<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├─ append {"role": "tool", "content": json.dumps(result)}<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└─ loop back ↑<br>
+        &nbsp;&nbsp;│<br>
+        &nbsp;&nbsp;└─ (repeat until no tool calls)
+      </div>
+
+      <h3>The system prompt</h3>
+      <p>The system prompt is injected at the start of every conversation. It establishes the model's role, tells it today's date (so it can compute relative date ranges like "last week"), and instructs it to always fetch data before answering:</p>
+
+      <pre><span class="str">"""You are Atlas, a personal physiological intelligence assistant for an elite multi-sport athlete.
+You have access to the athlete's workout, sleep, activity, and recovery data.
+Today's date is {today}.
+When answering questions, call the relevant tools to fetch data before responding.
+Be concise and specific. Use numbers from the data, not generic advice."""</span></pre>
+
+      <h3>Why a loop instead of a single call?</h3>
+      <p>A single LLM call with tool definitions returns either a text answer or a set of tool calls — not both. When the model decides it needs data, it returns tool calls. The loop executes those calls, appends the results to the message history, and calls the model again. The model now has the data in context and can write a grounded answer. Without the loop, tool calls would just be returned to the caller and never executed.</p>
+
+      <h3>Tool call dispatch</h3>
+      <p>The model returns a tool name (a string) and arguments (a dict). The agent looks up the name in <code>TOOL_DISPATCH</code>, a plain Python dict mapping names to callables. If the name is unknown or the function raises, the error is serialized to JSON and appended as a tool result — the loop continues, allowing the model to recover.</p>
+    </section>
+
+    <!-- Tools -->
+    <section id="tools">
+      <h2>Tools <span class="badge badge-blue">app/agent/tools.py</span></h2>
+      <p>Tools are the agent's hands. They are typed Python functions that query the database and return plain dicts. Each tool also has a JSON schema definition that is sent to the LLM so it knows what tools exist and what arguments to pass.</p>
+
+      <h3>The 5 MVP tools</h3>
+      <table>
+        <thead><tr><th>Tool</th><th>Arguments</th><th>Returns</th><th>Aggregates?</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>get_workout_summary</code></td>
+            <td><code>start_date</code>, <code>end_date</code>, <code>sport_type?</code></td>
+            <td>List of workouts with duration, distance, HR zones</td>
+            <td>No — one row per session</td>
+          </tr>
+          <tr>
+            <td><code>get_sleep_summary</code></td>
+            <td><code>start_date</code>, <code>end_date</code></td>
+            <td>List of sessions with deep/REM/light durations, HRV, SpO2, quality</td>
+            <td>No — one row per session</td>
+          </tr>
+          <tr>
+            <td><code>get_activity_summary</code></td>
+            <td><code>start_date</code>, <code>end_date</code></td>
+            <td>Daily totals: steps + energy</td>
+            <td><strong>Yes</strong> — sums 30-min slots by day</td>
+          </tr>
+          <tr>
+            <td><code>get_recovery_summary</code></td>
+            <td><code>start_date</code>, <code>end_date</code></td>
+            <td>Recovery balance (0–1) and stress state per entry</td>
+            <td>No — one row per reading</td>
+          </tr>
+          <tr>
+            <td><code>get_user_profile</code></td>
+            <td>none</td>
+            <td>Static profile: hrMax, hrRest, weight, height, DOB, gender</td>
+            <td>N/A — reads a JSON file</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>How the LLM knows about the tools</h3>
+      <p>Each tool has a JSON Schema definition in <code>TOOL_SCHEMAS</code>. This list is passed directly to <code>ollama.chat(tools=TOOL_SCHEMAS)</code>. The model uses these schemas to decide which tool to call and to generate correctly-shaped argument dicts. The schema defines required vs optional parameters, their types, and a plain-English description of what the tool does.</p>
+
+      <pre><span class="cmt"># Example: the schema for get_workout_summary</span>
+{
+  <span class="str">"type"</span>: <span class="str">"function"</span>,
+  <span class="str">"function"</span>: {
+    <span class="str">"name"</span>: <span class="str">"get_workout_summary"</span>,
+    <span class="str">"description"</span>: <span class="str">"Get workouts over a date range, optionally filtered by sport type."</span>,
+    <span class="str">"parameters"</span>: {
+      <span class="str">"type"</span>: <span class="str">"object"</span>,
+      <span class="str">"properties"</span>: {
+        <span class="str">"start_date"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"Start date in ISO format, e.g. 2026-04-01"</span>},
+        <span class="str">"end_date"</span>:   {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"End date in ISO format, e.g. 2026-04-10"</span>},
+        <span class="str">"sport_type"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"Optional sport type slug"</span>}
+      },
+      <span class="str">"required"</span>: [<span class="str">"start_date"</span>, <span class="str">"end_date"</span>]
+    }
+  }
+}</pre>
+
+      <h3>Why tool-calling instead of RAG?</h3>
+      <p>Retrieval-Augmented Generation (RAG) embeds text chunks and retrieves semantically similar ones. That works well for unstructured text (documents, notes). For numerical time-series data, it is unreliable — semantic similarity does not help you find "the three nights with lowest HRV" or "total distance cycled in March". Tool calling gives the model a precise, queryable interface to structured data.</p>
+    </section>
+
+    <!-- Ollama -->
+    <section id="ollama">
+      <h2>Ollama &amp; the Model <span class="badge badge-purple">qwen2.5:32b</span></h2>
+      <p>Ollama is a local model server. It exposes an OpenAI-compatible HTTP API and handles model loading, GPU memory management, and inference. The Python <code>ollama</code> library is a thin client over this API.</p>
+
+      <h3>Why qwen2.5:32b?</h3>
+      <p>Tool-calling quality is the primary selection criterion. The model must reliably:</p>
+      <ul>
+        <li>Infer the right date range from a relative question ("last two weeks")</li>
+        <li>Call the right tools in the right order</li>
+        <li>Synthesize multiple tool results into a coherent, quantitative answer</li>
+      </ul>
+      <p>Smaller models (7B–14B) tend to hallucinate tool arguments or fail to call tools at all for complex queries. <code>qwen2.5:32b</code> is a strong balance of capability and local runtime feasibility at 19 GB.</p>
+
+      <h3>The model's role vs the tools' role</h3>
+      <p>The model does <em>no computation</em>. It does not calculate averages, filter arrays, or sort data. All of that happens in Python tool functions that run against the DB. The model's job is to understand the question, decide which tools to call, and narrate the results in natural language. This separation is important: if an answer is wrong, you can check whether it was a DB query bug (deterministic, testable) or a model reasoning error (harder to debug).</p>
+    </section>
+
+    <!-- API -->
+    <section id="api">
+      <h2>FastAPI Endpoint <span class="badge badge-blue">app/api/ask.py</span></h2>
+      <p>The API is minimal by design. It is a thin HTTP wrapper around the agent — one route, two Pydantic models, no auth.</p>
+
+      <pre><span class="cls">@router</span>.<span class="fn">post</span>(<span class="str">"/ask"</span>, response_model=AskResponse)
+<span class="kw">def</span> <span class="fn">ask</span>(request: AskRequest) -> AskResponse:
+    answer = agent.<span class="fn">ask</span>(request.question)
+    <span class="kw">return</span> <span class="cls">AskResponse</span>(answer=answer)</pre>
+
+      <h3>Request / Response</h3>
+      <table>
+        <thead><tr><th>Direction</th><th>Shape</th></tr></thead>
+        <tbody>
+          <tr><td>Request</td><td><code>{"question": "string"}</code></td></tr>
+          <tr><td>Response</td><td><code>{"answer": "string"}</code></td></tr>
+        </tbody>
+      </table>
+
+      <pre><span class="cmt"># Example call:</span>
+curl -s -X POST http://localhost:8000/ask \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"question": "How was my sleep this week?"}'</span></pre>
+
+      <h3>Why FastAPI?</h3>
+      <p>FastAPI generates automatic OpenAPI documentation at <code>/docs</code> (Swagger UI) and <code>/redoc</code>. Pydantic models on request/response mean the endpoint validates inputs automatically — a missing or wrong-typed field returns a 422 before the agent is ever called. For a single-user local tool this is lightweight overhead that pays back in debuggability.</p>
+
+      <div class="callout note">
+        <strong>Known limitation:</strong> The <code>/ask</code> handler and <code>agent.ask()</code> are currently synchronous. The LLM call can take 10–30 seconds for complex questions. Uvicorn serves this in a thread pool (via Starlette's default sync handling), so it won't block the event loop — but a proper async implementation with <code>async def ask()</code> and an async Ollama client would be cleaner.
+      </div>
+
+      <h3>Entry point: <code>app/main.py</code></h3>
+      <pre><span class="fn">app</span> = FastAPI(title=<span class="str">"Atlas"</span>)
+app.<span class="fn">include_router</span>(ask.router)</pre>
+      <p>FastAPI uses routers to register groups of routes. <code>ask.router</code> is an <code>APIRouter</code> that holds the <code>/ask</code> endpoint. Adding new feature areas (e.g. a <code>/ingest</code> endpoint) would follow the same pattern: create a new router file and include it here.</p>
+    </section>
+
+    <!-- Tests -->
+    <section id="tests">
+      <h2>Tests <span class="badge badge-green">tests/</span></h2>
+      <p>The test suite covers the three most failure-prone areas of the system.</p>
+
+      <table>
+        <thead><tr><th>File</th><th>What it tests</th><th>How</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>test_ndjson_parser.py</code></td>
+            <td>All 4 NDJSON parse functions + <code>iter_ndjson</code></td>
+            <td>Pure unit tests — no DB. Constructs sample dicts, asserts output fields and edge cases.</td>
+          </tr>
+          <tr>
+            <td><code>test_fit_parser.py</code></td>
+            <td>FIT filename parsing, session extraction, missing fields</td>
+            <td>Mocks <code>fitparse.FitFile</code> — no real FIT files needed.</td>
+          </tr>
+          <tr>
+            <td><code>test_tools.py</code></td>
+            <td>All 5 agent tools — date filtering, aggregation, field mapping</td>
+            <td>SQLite in-memory DB via <code>conftest.py</code>. <code>SessionLocal</code> is patched to use the test session.</td>
+          </tr>
+          <tr>
+            <td><code>test_agent.py</code></td>
+            <td>Agent loop termination, tool dispatch, error handling</td>
+            <td>Mocks <code>ollama.chat</code> and <code>TOOL_DISPATCH</code>. No LLM needed.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Why these tests matter for this specific project</h3>
+      <p>Atlas has no human in the loop between ingestion and the agent's answer. A bug in HR normalization, a wrong date filter, or a silent parser crash doesn't produce an error — it produces a plausible-sounding wrong number. The tests are the only automated check that the data reaching the model is correct.</p>
+
+      <h3>Running the suite</h3>
+      <pre>.venv/bin/pytest tests/ -v   <span class="cmt"># 43 tests, all pass</span></pre>
+
+      <h4>conftest.py fixtures</h4>
+      <pre><span class="cmt"># db_session — SQLite in-memory, all tables created, dropped after each test</span>
+<span class="cls">@pytest</span>.<span class="fn">fixture</span>()
+<span class="kw">def</span> <span class="fn">db_session</span>():
+    engine = <span class="fn">create_engine</span>(<span class="str">"sqlite:///:memory:"</span>)
+    Base.metadata.<span class="fn">create_all</span>(engine)
+    ...
+
+<span class="cmt"># patched_db — patches SessionLocal in tools.py to use the test session</span>
+<span class="cls">@pytest</span>.<span class="fn">fixture</span>()
+<span class="kw">def</span> <span class="fn">patched_db</span>(db_session):
+    <span class="kw">with</span> <span class="fn">patch</span>(<span class="str">"app.agent.tools.SessionLocal"</span>, return_value=cm):
+        <span class="kw">yield</span> db_session</pre>
+    </section>
+
+    <!-- Connections -->
+    <section id="connections">
+      <h2>How the Parts Connect</h2>
+      <p>Here is the complete path of a single request, tracing every file involved:</p>
+
+      <table>
+        <thead><tr><th>Step</th><th>File</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>app/main.py</code></td><td>FastAPI app starts, registers <code>ask.router</code></td></tr>
+          <tr><td>2</td><td><code>app/api/ask.py</code></td><td><code>POST /ask</code> receives <code>{"question": "..."}</code>, validates via Pydantic</td></tr>
+          <tr><td>3</td><td><code>app/agent/agent.py</code></td><td>Builds message list with system prompt + user question, calls <code>ollama.chat()</code></td></tr>
+          <tr><td>4</td><td><code>app/agent/tools.py</code></td><td>Ollama returns tool calls; agent dispatches via <code>TOOL_DISPATCH</code></td></tr>
+          <tr><td>5</td><td><code>app/core/database.py</code></td><td>Tool opens a <code>SessionLocal()</code> context</td></tr>
+          <tr><td>6</td><td><code>app/models/*.py</code></td><td>ORM query runs against Postgres; rows returned as model instances</td></tr>
+          <tr><td>7</td><td><code>app/agent/tools.py</code></td><td>Model instances serialized to plain dicts, returned to agent</td></tr>
+          <tr><td>8</td><td><code>app/agent/agent.py</code></td><td>Result JSON appended to messages; loop calls <code>ollama.chat()</code> again</td></tr>
+          <tr><td>9</td><td><code>app/agent/agent.py</code></td><td>Model returns no more tool calls; <code>msg.content</code> is the final answer</td></tr>
+          <tr><td>10</td><td><code>app/api/ask.py</code></td><td>Answer wrapped in <code>AskResponse</code>, returned as JSON</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Configuration flows through <code>app/core/config.py</code></h3>
+      <p>Pydantic Settings reads <code>.env</code> at startup and exposes a single <code>settings</code> singleton. Three files import it: <code>database.py</code> (for the DB URL), <code>agent.py</code> (for the Ollama model name), and <code>tools.py</code> (for the export directory path used by <code>get_user_profile</code>). Changing the model or database requires only an <code>.env</code> edit — no code changes.</p>
+
+      <h3>The ingestion pipeline is a one-way door</h3>
+      <p>Ingestion writes to the DB. Nothing else does. The agent tools, the API, the tests — all read only. This means the DB state at any point is purely a function of the export data and the pipeline code. To rebuild it from scratch: drop the tables, run migrations, run the pipeline.</p>
+
+      <hr />
+      <p style="color: var(--muted); font-size: 0.85rem;">Atlas MVP v0.1 &nbsp;·&nbsp; Single user &nbsp;·&nbsp; Local inference &nbsp;·&nbsp; 43 tests passing</p>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

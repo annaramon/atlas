@@ -36,7 +36,7 @@ def parse_fit_file(path: Path) -> dict | None:
         def get(field):
             return msg.get_value(field)
 
-        start_time = get('start_time')
+        start_time = get('start_time') or get('timestamp')
         if start_time is None:
             log.warning("No start_time in %s", filename)
             return None

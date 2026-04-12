@@ -1,0 +1,16 @@
+{
+  "username": "synthetic_athlete",
+  "createdDate": "25-12-2024",
+  "lastModified": "03-04-2026",
+  "realName": "Synthetic Athlete",
+  "country": "ES",
+  "gender": "FEMALE",
+  "birthDate": "19-07-2000",
+  "weight": 58,
+  "height": 168,
+  "hrRest": 58,
+  "hrMax": 195,
+  "locale": "en",
+  "timezone": "Europe/Madrid",
+  "language": "EN"
+}
