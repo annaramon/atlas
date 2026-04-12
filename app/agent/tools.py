@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from sqlalchemy import cast, Date, func
+from sqlalchemy import func
 
 from app.core.config import settings
 from app.core.database import SessionLocal
@@ -88,7 +88,7 @@ def get_activity_summary(start_date: str, end_date: str) -> list[dict]:
     with SessionLocal() as db:
         rows = (
             db.query(
-                cast(Activity.recorded_at, Date).label("day"),
+                func.date(Activity.recorded_at).label("day"),
                 func.sum(Activity.step_count).label("total_steps"),
                 func.sum(Activity.energy_consumption).label("total_energy_kcal"),
             )
@@ -100,7 +100,7 @@ def get_activity_summary(start_date: str, end_date: str) -> list[dict]:
 
     return [
         {
-            "date": r.day.isoformat(),
+            "date": str(r.day),
             "total_steps": r.total_steps,
             "total_energy_kcal": r.total_energy_kcal,
         }
