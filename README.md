@@ -93,11 +93,7 @@ pip install -r requirements.txt
 
 ### 2. Configure environment
 
-```bash
-cp .env.example .env
-```
-
-`.env` defaults:
+Create a `.env` file in the project root:
 
 ```
 DATABASE_URL=postgresql://atlas:atlas@localhost:5432/atlas
@@ -185,8 +181,7 @@ atlas/
 │   ├── test_agent/
 │   └── test_ingestion/
 ├── docker-compose.yml
-├── requirements.txt
-└── .env.example
+└── requirements.txt
 ```
 
 ---
